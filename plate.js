@@ -26,35 +26,35 @@ require._core = {
 require.resolve = (function () {
     return function (x, cwd) {
         if (!cwd) cwd = '/';
-        
+
         if (require._core[x]) return x;
         var path = require.modules.path();
         cwd = path.resolve('/', cwd);
         var y = cwd || '/';
-        
+
         if (x.match(/^(?:\.\.?\/|\/)/)) {
             var m = loadAsFileSync(path.resolve(y, x))
                 || loadAsDirectorySync(path.resolve(y, x));
             if (m) return m;
         }
-        
+
         var n = loadNodeModulesSync(x, y);
         if (n) return n;
-        
+
         throw new Error("Cannot find module '" + x + "'");
-        
+
         function loadAsFileSync (x) {
             x = path.normalize(x);
             if (require.modules[x]) {
                 return x;
             }
-            
+
             for (var i = 0; i < require.extensions.length; i++) {
                 var ext = require.extensions[i];
                 if (require.modules[x + ext]) return x + ext;
             }
         }
-        
+
         function loadAsDirectorySync (x) {
             x = x.replace(/\/+$/, '');
             var pkgfile = path.normalize(x + '/package.json');
@@ -74,10 +74,10 @@ require.resolve = (function () {
                     if (m) return m;
                 }
             }
-            
+
             return loadAsFileSync(x + '/index');
         }
-        
+
         function loadNodeModulesSync (x, start) {
             var dirs = nodeModulesPathsSync(start);
             for (var i = 0; i < dirs.length; i++) {
@@ -87,23 +87,23 @@ require.resolve = (function () {
                 var n = loadAsDirectorySync(dir + '/' + x);
                 if (n) return n;
             }
-            
+
             var m = loadAsFileSync(x);
             if (m) return m;
         }
-        
+
         function nodeModulesPathsSync (start) {
             var parts;
             if (start === '/') parts = [ '' ];
             else parts = path.normalize(start).split('/');
-            
+
             var dirs = [];
             for (var i = parts.length - 1; i >= 0; i--) {
                 if (parts[i] === 'node_modules') continue;
                 var dir = parts.slice(0, i + 1).join('/') + '/node_modules';
                 dirs.push(dir);
             }
-            
+
             return dirs;
         }
     };
@@ -119,13 +119,13 @@ require.alias = function (from, to) {
         res = require.resolve(from, '/');
     }
     var basedir = path.dirname(res);
-    
+
     var keys = (Object.keys || function (obj) {
         var res = [];
         for (var key in obj) res.push(key);
         return res;
     })(require.modules);
-    
+
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         if (key.slice(0, basedir.length + 1) === basedir + '/') {
@@ -140,17 +140,17 @@ require.alias = function (from, to) {
 
 (function () {
     var process = {};
-    
+
     require.define = function (filename, fn) {
         if (require.modules.__browserify_process) {
             process = require.modules.__browserify_process();
         }
-        
+
         var dirname = require._core[filename]
             ? ''
             : require.modules.path().dirname(filename)
         ;
-        
+
         var require_ = function (file) {
             var requiredModule = require(file, dirname);
             var cached = require.cache[require.resolve(file, dirname)];
@@ -174,7 +174,7 @@ require.alias = function (from, to) {
             loaded : false,
             parent: null
         };
-        
+
         require.modules[filename] = function () {
             require.cache[filename] = module_;
             fn.call(
@@ -283,7 +283,7 @@ path = normalizeArray(filter(path.split('/'), function(p) {
   if (path && trailingSlash) {
     path += '/';
   }
-  
+
   return (isAbsolute ? '/' : '') + path;
 };
 
@@ -336,7 +336,7 @@ process.nextTick = (function () {
     var canPost = typeof window !== 'undefined'
         && window.postMessage && window.addEventListener
     ;
-    
+
     if (canPost) {
         window.addEventListener('message', function (ev) {
             if (ev.source === window && ev.data === 'browserify-tick') {
@@ -348,7 +348,7 @@ process.nextTick = (function () {
             }
         }, true);
     }
-    
+
     return function (fn) {
         if (canPost) {
             queue.push(fn);
@@ -406,32 +406,32 @@ var Script = exports.Script = function NodeScript (code) {
 
 Script.prototype.runInNewContext = function (context) {
     if (!context) context = {};
-    
+
     var iframe = document.createElement('iframe');
     if (!iframe.style) iframe.style = {};
     iframe.style.display = 'none';
-    
+
     document.body.appendChild(iframe);
-    
+
     var win = iframe.contentWindow;
-    
+
     forEach(Object_keys(context), function (key) {
         win[key] = context[key];
     });
-     
+
     if (!win.eval && win.execScript) {
         // win.eval() magically appears when this is called in IE:
         win.execScript('null');
     }
-    
+
     var res = win.eval(this.code);
-    
+
     forEach(Object_keys(win), function (key) {
         context[key] = win[key];
     });
-    
+
     document.body.removeChild(iframe);
-    
+
     return res;
 };
 
@@ -496,7 +496,7 @@ require.define("tz",function(require,module,exports,__dirname,__filename,process
     var date_is_dst = determine_dst(date)
       , date_dst_thresholds = determine_dst.find_thresholds()
       , has_dst = date_dst_thresholds.spring_forward !== date_dst_thresholds.fall_back
-      , is_north = has_dst && date_dst_thresholds.spring_forward < date_dst_thresholds.fall_back 
+      , is_north = has_dst && date_dst_thresholds.spring_forward < date_dst_thresholds.fall_back
       , list = (tz_list || []).slice()
       , filtered = []
 
@@ -517,11 +517,11 @@ require.define("tz",function(require,module,exports,__dirname,__filename,process
       , 'abbr':     list[0].abbr
       , 'offset':   fmt
     }
-  } 
+  }
 
   tzinfo.get_offset_format = get_offset_fmt
   tzinfo.tz_list = tz
-  
+
   Date.prototype.tzinfo = function() {
     return tzinfo(this)
   }
@@ -599,7 +599,7 @@ function is_dst(datetime, thresholds) {
 }
 
 Date.prototype.isDST = function(thresholds) {
-  return is_dst(this, thresholds) 
+  return is_dst(this, thresholds)
 }
 
 is_dst.find_thresholds = find_dst_thresholds
@@ -607,7 +607,7 @@ is_dst.find_thresholds = find_dst_thresholds
 if(typeof module !== 'undefined') {
   module.exports = is_dst
 } else {
-  window.is_dst = is_dst 
+  window.is_dst = is_dst
 }
 
 })()
@@ -616,7 +616,7 @@ if(typeof module !== 'undefined') {
 require.define("/lib/index.js",function(require,module,exports,__dirname,__filename,process){var FilterToken = require('./filter_token')
   , TagToken = require('./tag_token')
   , CommentToken = require('./comment_token')
-  , TextToken = require('./text_token') 
+  , TextToken = require('./text_token')
   , libraries = require('./libraries')
   , Parser = require('./parser')
   , Context = require('./context')
@@ -642,10 +642,10 @@ function Template(raw, libraries, parser) {
   this.tagLibrary =
     libraries.tag_library || Template.Meta.createTagLibrary()
 
-  this.filterLibrary = 
+  this.filterLibrary =
     libraries.filter_library || Template.Meta.createFilterLibrary()
 
-  this.pluginLibrary = 
+  this.pluginLibrary =
     libraries.plugin_library || Template.Meta.createPluginLibrary()
 
   this.parser = parser || Parser
@@ -688,7 +688,7 @@ proto.render = protect(function(context, ready) {
 
   var result
 
-  result = 
+  result =
   this
     .getNodeList()
     .render(context)
@@ -894,7 +894,7 @@ proto.resolve = function(value) {
 }
 
 proto.once = function(ev, fn) {
-  this.trigger = fn  
+  this.trigger = fn
 }
 });
 
@@ -976,7 +976,7 @@ require.define("/lib/libraries.js",function(require,module,exports,__dirname,__f
   , DefaultPluginLibrary: require('./library')
   , DefaultTagLibrary: require('./defaulttags')
   , DefaultFilterLibrary: require('./defaultfilters')
-} 
+}
 });
 
 require.define("/lib/library.js",function(require,module,exports,__dirname,__filename,process){module.exports = Library
@@ -989,7 +989,7 @@ var cons = Library
   , proto = cons.prototype
 
 proto.lookup = errorOnNull(function(name) {
-  return this.registry[name] || null  
+  return this.registry[name] || null
 }, "Could not find {0}!")
 
 proto.register = errorOnNull(function(name, item) {
@@ -1070,9 +1070,9 @@ proto.render = function(context) {
 
   block = push = blockContext.pop(self.name)
 
-  if(!block) { 
+  if(!block) {
     block = self
-  } 
+  }
 
   block = new BlockNode(block.name, block.nodes)
 
@@ -1100,7 +1100,7 @@ proto._super = function() {
   if(blockContext && (block = blockContext.get(this.name))) {
     str = new String(block.render(this.context))
     str.safe = true
-    return str 
+    return str
   }
 
   return ''
@@ -1121,7 +1121,7 @@ cons.parse = function(contents, parser) {
   nodes = parser.parse(['endblock'])
   parser.tokens.shift()
 
-  return new cons(name, nodes)  
+  return new cons(name, nodes)
 }
 });
 
@@ -1234,7 +1234,7 @@ proto.render = function(context, parent) {
 
     parent.once('done', function(data) {
       promise.resolve(self.render(context, data))
-    })  
+    })
 
     return promise
   }
@@ -1309,7 +1309,7 @@ function getInIndex(bits) {
     if(bits[i] === 'in')
       return i
 
-  return -1 
+  return -1
 }
 
 proto.render = function(context, value) {
@@ -1317,18 +1317,13 @@ proto.render = function(context, value) {
     , arr = value || self.target.resolve(context)
     , promise
 
-
   if(arr && arr.constructor === Promise) {
     promise = new Promise
     arr.once('done', function(data) {
-      promise.resolve(self.render(context, data))
+      promise.resolve(data)
     })
 
     return promise
-  }
-
-  if(arr === undefined || arr === null) {
-    arr = []
   }
 
   var bits = []
@@ -1339,7 +1334,7 @@ proto.render = function(context, value) {
     , ctxt
     , sub
 
-  if(!('length' in arr)) {
+  if(Object.prototype.toString.call(arr) !== '[object Array]') {
     for(var key in arr) if(arr.hasOwnProperty(key)) {
       bits.push(key)
     }
@@ -1359,7 +1354,7 @@ proto.render = function(context, value) {
     loop.revcounter0 = len - (i + 1)
     loop.first = i === 0
     loop.last = i === len - 1
-    loop.parentloop = parent 
+    loop.parentloop = parent
     ctxt.forloop = loop
 
     if(self.unpack.length === 1)
@@ -1370,13 +1365,12 @@ proto.render = function(context, value) {
     result = self.loop.render(ctxt)
     if(result.constructor === Promise)
       promises.push(result)
-     
-    bits.push(result) 
+
+    bits.push(result)
   }
 
-  if(promises.length) {
+  if(promises.length)
     return self.loop.resolvePromises(bits, promises)
-  }
 
   return bits.join('')
 }
@@ -1436,7 +1430,7 @@ proto.render = function(context) {
   }
 
   if(promises.length) {
-    return this.resolvePromises(results, promises) 
+    return this.resolvePromises(results, promises)
   }
 
   return results.join('')
@@ -1448,7 +1442,7 @@ proto.resolvePromises = function(results, promises) {
     , total = promises.length
 
   for(var i = 0, p = 0, len = results.length; i < len; ++i) {
-    if(results[i].constructor !== Promise) 
+    if(results[i].constructor !== Promise)
       continue
 
     promises[p++].once('done', bind(i, function(idx, result) {
@@ -1490,7 +1484,7 @@ proto.render = function(context, result, times) {
 
   result = times === 1 ? result : this.predicate.evaluate(context)
 
-  if(result && result.constructor === Promise) {
+  if(result.constructor === Promise) {
     promise = new Promise
 
     result.once('done', function(value) {
@@ -1696,43 +1690,43 @@ module.exports = {
   }
 
   , '=': function() {
-    return new InfixOperator(10, function(x, y) { 
+    return new InfixOperator(10, function(x, y) {
       return x == y
     })
   }
 
   , '==': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x == y
       })
     }
 
   , '!=': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x !== y
       })
     }
 
   , '>': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x > y
       })
     }
 
   , '>=': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x >= y
       })
     }
 
   , '<': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x < y
       })
     }
 
   , '<=': function() {
-      return new InfixOperator(10, function(x, y) { 
+      return new InfixOperator(10, function(x, y) {
         return x <= y
       })
     }
@@ -1740,9 +1734,7 @@ module.exports = {
 
 function in_operator(x, y) {
   if(!(x instanceof Object) && y instanceof Object) {
-    if(!(y && 'length' in y)) {
-      y = keys(y)
-    }
+    y = keys(y)
   }
 
   if(typeof(x) == 'string' && typeof(y) =='string') {
@@ -1774,7 +1766,7 @@ function in_operator(x, y) {
       var xkeys = keys(x),
         rkeys = keys(rhs)
 
-      if(xkeys.length === rkeys.length) { 
+      if(xkeys.length === rkeys.length) {
         for(var i = 0, len = xkeys.length, equal = true;
           i < len && equal;
           ++i) {
@@ -1782,7 +1774,7 @@ function in_operator(x, y) {
               x[xkeys[i]] === rhs[rkeys[i]]
         }
         found = equal
-      } 
+      }
     } else {
       found = x == rhs
     }
@@ -1799,9 +1791,9 @@ function InfixOperator(bp, cmp) {
   this.lbp = bp
   this.cmp = cmp
 
-  this.first = 
+  this.first =
   this.second = null
-} 
+}
 
 var cons = InfixOperator
   , proto = cons.prototype
@@ -1857,7 +1849,7 @@ function PrefixOperator(bp, cmp) {
   this.lbp = bp
   this.cmp = cmp
 
-  this.first = 
+  this.first =
   this.second = null
 }
 
@@ -1898,9 +1890,10 @@ require.define("/lib/tags/include.js",function(require,module,exports,__dirname,
 
 var Promise = require('../promise')
 
-function IncludeNode(target_var, loader) {
+function IncludeNode(target_var, withs, loader) {
   this.target_var = target_var
   this.loader = loader
+  this.withs = withs
 }
 
 var cons = IncludeNode
@@ -1910,13 +1903,27 @@ cons.parse = function(contents, parser) {
   var bits = contents.split(' ')
     , varname = parser.compile(bits.slice(1).join(' '))
     , loader = parser.plugins.lookup('loader')
+    , pairs = bits.slice(3)
+    , withs = {}
 
-  return new cons(varname, loader) 
+    for(var pair in pairs) {
+        pair = pairs[pair].split('=')
+        withs[pair[0]] = pair[1].replace(/^(?:"|')(.*)(?:"|')$/, '$1')
+    }
+
+  return new cons(varname, withs, loader)
 }
 
 proto.render = function(context, target) {
   var self = this
+    , withs = this.withs
     , promise
+
+    for(var k in withs) {
+        if(withs.hasOwnProperty(k)) {
+            context[k] = withs[k]
+        }
+    }
 
   target = target || this.target_var.resolve(context)
 
@@ -1937,14 +1944,14 @@ proto.render = function(context, target) {
 
     target.once('done', function(data) {
       promise.resolve(self.render(context, data))
-    })  
+    })
 
     return promise
   }
 
   promise = new Promise
 
-  target.render(context.copy(), function(err, data) {
+  target.render(context, function(err, data) {
     promise.resolve(data)
   })
 
@@ -2278,7 +2285,7 @@ proto.O = function() {
   var tzoffs = this.data.getTimezoneOffset()
     , offs = ~~(tzoffs / 60)
     , mins = ('00' + ~~Math.abs(tzoffs % 60)).slice(-2)
-  
+
   return ((tzoffs > 0) ? '-' : '+') + ('00' + Math.abs(offs)).slice(-2) + mins
 }
 
@@ -2333,7 +2340,7 @@ proto.w = function() {
 proto.W = function() {
   // ISO-8601 week number of year, weeks starting on Monday
   // Algorithm from http://www.personal.ecu.edu/mccartyr/ISOwdALG.txt
-  var jan1_weekday = new Date(this.data.getFullYear(), 0, 1).getDay() 
+  var jan1_weekday = new Date(this.data.getFullYear(), 0, 1).getDay()
     , weekday = this.data.getDay()
     , day_of_year = this.z()
     , week_number
@@ -2425,7 +2432,7 @@ cons.parse = function(contents, parser) {
 }
 
 proto.render = function(context, value) {
-  var self = this 
+  var self = this
     , result
     , promise
 
@@ -2542,7 +2549,7 @@ require.define("/lib/filters/center.js",function(require,module,exports,__dirnam
     , value = ' '
 
   len -= str.length
-  if(len < 0) { 
+  if(len < 0) {
     return str
   }
 
@@ -2559,7 +2566,7 @@ require.define("/lib/filters/center.js",function(require,module,exports,__dirnam
   if((len_half - Math.floor(len_half)) > 0) {
     str = input.toString().length % 2 == 0 ? value + str : str + value
   }
-  
+
   return str
 }
 });
@@ -2571,7 +2578,7 @@ require.define("/lib/filters/cut.js",function(require,module,exports,__dirname,_
 });
 
 require.define("/lib/filters/date.js",function(require,module,exports,__dirname,__filename,process){var format = require('../date').date
-  
+
 module.exports = function(input, value, ready) {
   if (ready === undefined)
     value = 'N j, Y'
@@ -2622,8 +2629,8 @@ module.exports = function(input) {
 require.define("/lib/filters/filesizeformat.js",function(require,module,exports,__dirname,__filename,process){module.exports = function(input) {
   var num = (new Number(input)).valueOf()
     , singular = num == 1 ? '' : 's'
-    , value 
-    
+    , value
+
   value =
     num < 1024 ? num + ' byte'+singular :
     num < (1024*1024) ? (num/1024)+' KB' :
@@ -2847,7 +2854,7 @@ require.define("/lib/filters/pluralize.js",function(require,module,exports,__dir
 
   suffix = plural[plural.length-1];
   if(val === 1) {
-    suffix = plural.length > 1 ? plural[0] : '';    
+    suffix = plural.length > 1 ? plural[0] : '';
   }
 
   return suffix
@@ -2966,7 +2973,7 @@ require.define("/lib/filters/title.js",function(require,module,exports,__dirname
   var str = input.toString()
     , bits = str.split(/\s{1}/g)
     , out = []
-  
+
   while(bits.length) {
     var word = bits.pop()
     word = word.charAt(0).toUpperCase() + word.slice(1)
@@ -3051,7 +3058,7 @@ require.define("/lib/filters/urlize.js",function(require,module,exports,__dirnam
 module.exports = function(input) {
   var str = input.toString()
   return safe(str.replace(/(((http(s)?:\/\/)|(mailto:))([\w\d\-\.:@\/])+)/g, function() {
-    return '<a href="'+arguments[0]+'">'+arguments[0]+'</a>'; 
+    return '<a href="'+arguments[0]+'">'+arguments[0]+'</a>';
   }))
 }
 });
@@ -3063,7 +3070,7 @@ module.exports = function(input, len) {
   len = parseInt(len, 10) || 1000
   return safe(str.replace(/(((http(s)?:\/\/)|(mailto:))([\w\d\-\.:@])+)/g, function() {
     var ltr = arguments[0].length > len ? arguments[0].slice(0, len) + '...' : arguments[0];
-    return '<a href="'+arguments[0]+'">'+ltr+'</a>'; 
+    return '<a href="'+arguments[0]+'">'+ltr+'</a>';
   }))
 }
 });
@@ -3265,7 +3272,7 @@ proto.compileLookup = function(content, idx, output) {
 
 proto.compileFull = function(content, idx, output, omitPipe) {
   var c
-  output = output || [] 
+  output = output || []
   idx = idx || 0
 
   // something|filtername[:arg, arg]
@@ -3334,7 +3341,7 @@ var cons = FilterChain
 
 proto.attach = function(parser) {
   for(var i = 0, len = this.bits.length; i < len; ++i) {
-    if(this.bits[i] && this.bits[i].attach) { 
+    if(this.bits[i] && this.bits[i].attach) {
       this.bits[i].attach(parser)
     }
   }
@@ -3412,7 +3419,7 @@ proto.resolve = function(context, fromIDX) {
       current = next
     }
 
-  } 
+  }
 
   return current
 }
@@ -3459,7 +3466,7 @@ proto.resolve = function(context, value, fromIDX, argValues) {
   }
 
   for(var i = start, len = self.args.length; i < len; ++i) {
-    var argValue = self.args[i].resolve ? 
+    var argValue = self.args[i].resolve ?
         self.args[i].resolve(context) :
         self.args[i]
 
@@ -3473,7 +3480,7 @@ proto.resolve = function(context, value, fromIDX, argValues) {
 
       argValue.once('done', function(val) {
         argValues[i] = val
-        promise.resolve(self.resolve( 
+        promise.resolve(self.resolve(
             context
           , value
           , i
@@ -3501,7 +3508,7 @@ proto.resolve = function(context, value, fromIDX, argValues) {
   return result
 
   function ready(err, data) {
-    if(promise.trigger) 
+    if(promise.trigger)
       return promise.resolve(err ? err : data)
 
     result = data
@@ -3572,7 +3579,7 @@ function createAutoregister(name) {
 function createLibrary(name) {
   return function() {
     if(this._cache[name])
-      return this._cache[name]; 
+      return this._cache[name];
 
     var lib = new this._classes[name]
 
